@@ -26,6 +26,8 @@ import com.itextpdf.text.pdf.parser.TextRenderInfo;
 public class ProtocolFiller {
 
     private static String getString(Cell idCell) {
+    	if (idCell == null)
+    		return "";
         if (idCell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
             idCell.setCellType(Cell.CELL_TYPE_STRING);
         }
@@ -49,13 +51,14 @@ public class ProtocolFiller {
     }
 
     public static void main(String[] args) throws Exception {
-    	if (args.length < 2 || args.length > 3) {
-    		System.out.println("Usage: java -jar protocolfiller.jar <protocol> <grades> [ <output> ]\n" +
+    	if (args.length < 2 || args.length > 4) {
+    		System.out.println("Usage: java -jar protocolfiller.jar <protocol> <grades> [ <output> ] [ <align> ]\n" +
     				"where\n" +
     				"  <protocol> is the protocol PDF file\n" +
     				"  <grades>   is the Excel file containing the student IDs and grades\n" +
     				"             (in the first two columns, respectively, of the first sheet)\n" +
-    				"  <output>   is the output PDF file, or out.pdf by default");
+    				"  <output>   is the output PDF file (default: out.pdf)\n" +
+    				"  <align>    px horizontal alignment of grades (default: 0)");
     		System.exit(0);
     	}
         ProtocolFiller filler = new ProtocolFiller();
@@ -64,7 +67,11 @@ public class ProtocolFiller {
         if (args.length > 2) {
             outputFilename = args[2];
         }
-        Set<String> graded = filler.fillGrades(args[0], grades, outputFilename);
+        int align = 0;
+        if (args.length > 3) { 
+        	align = Integer.parseInt(args[3]);
+        }
+        Set<String> graded = filler.fillGrades(args[0], grades, align, outputFilename);
 
         HashSet<String> missing = new HashSet<>(grades.keySet());
         missing.removeAll(graded);
@@ -79,7 +86,7 @@ public class ProtocolFiller {
      * @param grades A map from student ids to grades
      * @return A set of student ids for which a grade has been inserted
      */
-    public Set<String> fillGrades(String pdfFileName, final Map<String, String> grades, String outputFilename) throws IOException, DocumentException {
+    public Set<String> fillGrades(String pdfFileName, final Map<String, String> grades, final int align, String outputFilename) throws IOException, DocumentException {
         final Set<String> graded = new HashSet<>();
         PdfReader reader = new PdfReader(pdfFileName);
         PdfReaderContentParser parser = new PdfReaderContentParser(reader);
@@ -109,7 +116,7 @@ public class ProtocolFiller {
                     if (grades.containsKey(studentId)) {
                         grade = grades.get(studentId);
                     } else if (studentId.matches("\\d{8,9}") || studentId.matches("[a-zA-Z]{2}\\d{5}")) {
-                        grade = "UB";  //Inserts "UB" for students where no grade is available
+                        grade = "";  //Inserts "" for students where no grade is available
                         System.out.println("Student " + studentId + " did not participate in the exam");
                     }
 
@@ -126,8 +133,8 @@ public class ProtocolFiller {
                             e.printStackTrace();
                         }
                         overContent.setFontAndSize(bf, 14);
-                        //Insert the grade 430 px to the right of the student id. Right align the text...
-                        overContent.showTextAligned(PdfContentByte.ALIGN_RIGHT, grade, textRenderInfo.getBaseline().getEndPoint().get(0) + 430, textRenderInfo.getBaseline().getEndPoint().get(1), 0);
+                        //Insert the grade 4700+align px to the right of the student id. Right align the text...
+                        overContent.showTextAligned(PdfContentByte.ALIGN_RIGHT, grade, textRenderInfo.getBaseline().getStartPoint().get(0) + 470 + align, textRenderInfo.getBaseline().getEndPoint().get(1), 0);
                         overContent.endText();
                         //System.out.println("Writing student ID " + studentId + ", grade " + grade);
                     }

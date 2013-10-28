@@ -49,7 +49,7 @@
 	</target>
 
 	<target name="publish" depends="jar">
-		<copy file="dist/${project}.war" todir="${public}" />
+		<copy file="dist/${project}.jar" todir="${public}" />
 	</target>
 
 </project>
