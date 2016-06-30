@@ -115,7 +115,7 @@ public class ProtocolFiller {
                     String grade = null;
                     if (grades.containsKey(studentId)) {
                         grade = grades.get(studentId);
-                    } else if (studentId.matches("\\d{8,9}") || studentId.matches("[a-zA-Z]{2}\\d{5}")) {
+                    } else if (studentId.matches("\\d{6,9}") || studentId.matches("[a-zA-Z]{2}\\d{5}")) {
                         grade = "";  //Inserts "" for students where no grade is available
                         System.out.println("Student " + studentId + " did not participate in the exam");
                     }
