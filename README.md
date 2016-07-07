@@ -30,3 +30,9 @@ java -jar protocolfiller.jar protocol.pdf grades.xlsx
 Your Excel file should contain two columns (without headers): the first column contains the student ID numbers, and the second column contains the grades.
 
 The grade protocol PDF must be the original one, not a bitmap generated from a scanner.
+
+Authors
+-------
+
+- Mathias Schwarz
+- [Anders Møller](mailto:amoeller@cs.au.dk?subject=protocolfiller)
